@@ -18,7 +18,7 @@ interface CardDetailsType {
   cardNumber: string;
   status: string;
   validPeriod: string;
-  balance: number;
+  balance: number; // Mantenha o balance aqui
 }
 
 export default function CardDetails() {
@@ -31,10 +31,10 @@ export default function CardDetails() {
     cardNumber: '',
     status: 'Active',
     validPeriod: '',
-    balance: 0,
+    balance: 0, // Mantenha o balance no estado
   });
 
-  const [nfcErrorDisplayed, setNfcErrorDisplayed] = useState(false); // Estado para controlar a exibição do alerta de erro NFC
+  const [nfcErrorDisplayed, setNfcErrorDisplayed] = useState<boolean>(false); // Estado para controlar a exibição do alerta de erro NFC
 
   const auth = getAuth();
   const user: User | null = auth.currentUser;
@@ -56,7 +56,7 @@ export default function CardDetails() {
               cardNumber: data?.numberCard ? `**** ${data.numberCard.slice(-4)}` : '',
               status: data?.status || 'Active',
               validPeriod: data?.validCard || '',
-              balance: data?.balance || 0,
+              balance: data?.balance || 0, // Mantenha a atribuição do balance
             });
           } else {
             Alert.alert("Erro", "Nenhum cartão encontrado.");
@@ -101,7 +101,7 @@ export default function CardDetails() {
 
             setCardDetails(prevDetails => ({
               ...prevDetails,
-              balance: newBalance,
+              balance: newBalance, // Atualiza o saldo no estado
             }));
 
             Alert.alert("Sucesso", "Pagamento realizado com sucesso.");
@@ -142,7 +142,7 @@ export default function CardDetails() {
           cardNumber: '',
           status: '',
           validPeriod: '',
-          balance: 0,
+          balance: 0, // Limpa o saldo ao deletar
         });
 
         // Redireciona para a tela inicial ou outra tela desejada
@@ -180,28 +180,16 @@ export default function CardDetails() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Name</Text>
+          <Text style={styles.detailLabel}>Nome</Text>
           <Text style={styles.detailValue}>{cardDetails.cardName}</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Bank</Text>
-          <Text style={styles.detailValue}>{cardDetails.bankName}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Account</Text>
+          <Text style={styles.detailLabel}>Número do Cartão</Text>
           <Text style={styles.detailValue}>{cardDetails.cardNumber}</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Status</Text>
-          <Text style={styles.detailValue}>{cardDetails.status}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Valid</Text>
+          <Text style={styles.detailLabel}>Validade do cartão</Text>
           <Text style={styles.detailValue}>{cardDetails.validPeriod}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Balance</Text>
-          <Text style={styles.detailValue}>R$ {cardDetails.balance.toFixed(2)}</Text>
         </View>
       </View>
 

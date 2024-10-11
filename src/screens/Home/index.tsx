@@ -30,6 +30,8 @@ export default function Home() {
   const [showSaldo, setShowSaldo] = useState<boolean>(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+
+  //Foto user
   const fetchUserData = useCallback(async () => {
     if (user) {
       const userRef = doc(collection(db, "users"), user.uid);
@@ -42,6 +44,8 @@ export default function Home() {
       }
     }
   }, [user]);
+
+
 
   const fetchUserCardData = useCallback(() => {
     if (user) {
@@ -87,7 +91,7 @@ export default function Home() {
   };
 
   const handleSimulateTransaction = async () => {
-    if (saldo !== null && saldo < 4) {
+    if (saldo !== null && saldo < 4.60) {
       Alert.alert("Saldo insuficiente!", "Você não tem saldo suficiente para realizar esta transação.");
       return;
     }
@@ -95,21 +99,21 @@ export default function Home() {
     const newTransaction: Transaction = {
       id: String(new Date().getTime()),
       name: 'Simulação de Transação',
-      amount: '-$4.00',
+      amount: '-$4.60',
       date: new Date().toLocaleDateString(),
       icon: 'attach-money',
       type: 'saida'
     };
 
     setTransactions(prev => [newTransaction, ...prev]);
-    setSaldo(prev => (prev !== null ? prev - 4 : 0));
+    setSaldo(prev => (prev !== null ? prev - 4.60 : 0));
 
     if (user) {
       const cardRef = doc(collection(db, "cardsDados"), user.uid);
       const cardDoc = await getDoc(cardRef);
       if (cardDoc.exists()) {
         await updateDoc(cardRef, {
-          saldo: (cardDoc.data().saldo - 4).toString()
+          saldo: (cardDoc.data().saldo - 4.60)
         });
         const transactionsRef = doc(collection(db, "transactions"), user.uid);
         const transactionDoc = await getDoc(transactionsRef);
@@ -181,7 +185,7 @@ export default function Home() {
           onPress={() => navigate("CardDetails")}
         >
           <MaterialIcons name="payment" size={24} color="#fff" />
-          <Text style={styles.actionText}>Cartão</Text>
+          <Text style={styles.actionText}>Passe</Text>
         </Pressable>
 
         <Pressable
@@ -197,7 +201,7 @@ export default function Home() {
           onPress={() => navigate("AddCard")}
         >
           <MaterialIcons name="add-circle" size={24} color="#fff" />
-          <Text style={styles.actionText}>Add Card</Text>
+          <Text style={styles.actionText}>Cadastrar Cartão</Text>
         </Pressable>
       </View>
 
