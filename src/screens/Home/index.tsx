@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { propsStack } from '../../routes/types';
 import { styles } from './styles';
-import { collection, doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { getAuth, User } from 'firebase/auth';
 import { db } from 'src/utils/firebase';
 import { UserProfile } from 'src/models/UserProfile';
@@ -30,8 +30,7 @@ export default function Home() {
   const [showSaldo, setShowSaldo] = useState<boolean>(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-
-  //Foto user
+  // Foto user
   const fetchUserData = useCallback(async () => {
     if (user) {
       const userRef = doc(collection(db, "users"), user.uid);
@@ -44,8 +43,6 @@ export default function Home() {
       }
     }
   }, [user]);
-
-
 
   const fetchUserCardData = useCallback(() => {
     if (user) {
@@ -78,81 +75,32 @@ export default function Home() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([
-      fetchUserData(),
-      fetchUserCardData(),
-      fetchTransactions()
-    ]);
+    await Promise.all([fetchUserData(), fetchUserCardData(), fetchTransactions()]);
     setRefreshing(false);
   };
 
   const toggleSaldoVisibility = () => {
-    setShowSaldo(prev => !prev);
-  };
-
-  const handleSimulateTransaction = async () => {
-    if (saldo !== null && saldo < 4.60) {
-      Alert.alert("Saldo insuficiente!", "Você não tem saldo suficiente para realizar esta transação.");
-      return;
-    }
-
-    const newTransaction: Transaction = {
-      id: String(new Date().getTime()),
-      name: 'Simulação de Transação',
-      amount: '-$4.60',
-      date: new Date().toLocaleDateString(),
-      icon: 'attach-money',
-      type: 'saida'
-    };
-
-    setTransactions(prev => [newTransaction, ...prev]);
-    setSaldo(prev => (prev !== null ? prev - 4.60 : 0));
-
-    if (user) {
-      const cardRef = doc(collection(db, "cardsDados"), user.uid);
-      const cardDoc = await getDoc(cardRef);
-      if (cardDoc.exists()) {
-        await updateDoc(cardRef, {
-          saldo: (cardDoc.data().saldo - 4.60)
-        });
-        const transactionsRef = doc(collection(db, "transactions"), user.uid);
-        const transactionDoc = await getDoc(transactionsRef);
-        if (transactionDoc.exists()) {
-          await updateDoc(transactionsRef, {
-            transactions: [newTransaction, ...(transactionDoc.data()?.transactions || [])],
-          });
-        } else {
-          await setDoc(transactionsRef, {
-            transactions: [newTransaction],
-          });
-        }
-      }
-    }
+    setShowSaldo((prev) => !prev);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([fetchUserData(), fetchUserCardData(), fetchTransactions()]);
     };
-    
+
     fetchData();
   }, [fetchUserData, fetchUserCardData, fetchTransactions]);
 
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.header}>
         <Text style={styles.title}>BussPass</Text>
         <Pressable onPress={() => navigate('Profile')}>
           {photo ? (
-            <Image
-              source={{ uri: photo }}
-              style={styles.profileImage}
-            />
+            <Image source={{ uri: photo }} style={styles.profileImage} />
           ) : (
             <MaterialIcons name="person" size={40} color="gray" />
           )}
@@ -167,7 +115,7 @@ export default function Home() {
           </Text>
           <Pressable onPress={toggleSaldoVisibility}>
             <MaterialIcons
-              name={showSaldo ? "visibility-off" : "visibility"}
+              name={showSaldo ? 'visibility-off' : 'visibility'}
               size={24}
               color="#fff"
               style={styles.saldoIcon}
@@ -180,26 +128,17 @@ export default function Home() {
       </View>
 
       <View style={styles.actionRow}>
-        <Pressable
-          style={styles.actionButton}
-          onPress={() => navigate("CardDetails")}
-        >
+        <Pressable style={styles.actionButton} onPress={() => navigate('CardDetails')}>
           <MaterialIcons name="payment" size={24} color="#fff" />
           <Text style={styles.actionText}>Passe</Text>
         </Pressable>
 
-        <Pressable
-          style={styles.actionButton}
-          onPress={() => navigate("Recarga")}
-        >
+        <Pressable style={styles.actionButton} onPress={() => navigate('Recarga')}>
           <MaterialIcons name="attach-money" size={24} color="#fff" />
           <Text style={styles.actionText}>Recarga</Text>
         </Pressable>
 
-        <Pressable
-          style={styles.actionButton}
-          onPress={() => navigate("AddCard")}
-        >
+        <Pressable style={styles.actionButton} onPress={() => navigate('AddCard')}>
           <MaterialIcons name="add-circle" size={24} color="#fff" />
           <Text style={styles.actionText}>Cadastrar Cartão</Text>
         </Pressable>
@@ -208,7 +147,7 @@ export default function Home() {
       <View style={styles.transactionContainer}>
         <View style={styles.transactionHeader}>
           <Text style={styles.sectionTitle}>Última transação</Text>
-          <Pressable style={styles.viewStatementButtonContainer} onPress={() => navigate("Extrato")}>
+          <Pressable style={styles.viewStatementButtonContainer} onPress={() => navigate('Extrato')}>
             <Text style={styles.viewStatementButton}>Ver Extrato</Text>
           </Pressable>
         </View>
@@ -223,9 +162,7 @@ export default function Home() {
                 <Text
                   style={[
                     styles.transactionAmount,
-                    {
-                      color: item.type === 'saida' ? 'red' : 'green',
-                    },
+                    { color: item.type === 'saida' ? 'red' : 'green' },
                   ]}
                 >
                   {item.amount}
@@ -238,10 +175,6 @@ export default function Home() {
           <Text style={styles.noTransactionsText}>Nenhuma transação disponível</Text>
         )}
       </View>
-
-      <Pressable onPress={handleSimulateTransaction}>
-        <Text style={styles.simulateButton}>Simular Transação</Text>
-      </Pressable>
     </ScrollView>
   );
 }
