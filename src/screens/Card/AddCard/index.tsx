@@ -99,7 +99,7 @@ export default function AddCard() {
                 </Pressable>
             </View>
 
-            <Text style={styles.title}>Adicionar Cartão</Text>
+            <Text style={styles.title}>Cadastrar Cartão</Text>
 
             <TextInput
                 style={styles.formInput}
@@ -129,7 +129,7 @@ export default function AddCard() {
             />
 
             <Pressable style={styles.formButton} onPress={handleSaveCard} disabled={loading}>
-                <Text style={styles.textButton}>{loading ? "Salvando..." : "Adicionar Cartão"}</Text>
+                <Text style={styles.textButton}>{loading ? "Salvando..." : "Cadastar Cartão"}</Text>
             </Pressable>
 
             <Text style={styles.description}>Preencha os campos acima para adicionar os dados do cartão.</Text>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Pressable, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Alert, Clipboard } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { propsStack } from '../../routes/types';
@@ -11,10 +11,11 @@ import QRCode from 'react-native-qrcode-svg';
 
 export default function Recarga() {
     const { navigate } = useNavigation<propsStack>();
-    const [saldo, setSaldo] = useState<string>(''); 
-    const [currentSaldo, setCurrentSaldo] = useState<number>(0); 
-    const [loading, setLoading] = useState<boolean>(false);
-    const [showQRCode, setShowQRCode] = useState<boolean>(false);
+    const [saldo, setSaldo] = useState<string>('');
+    const [currentSaldo, setCurrentSaldo] = useState<number>(0);
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [qrCodeValue, setQrCodeValue] = useState<string>(''); // Valor do código gerado
+    const [remainingTime, setRemainingTime] = useState<number>(60);
 
     const auth = getAuth();
     const user: User | null = auth.currentUser;
@@ -32,33 +33,112 @@ export default function Recarga() {
         fetchSaldo();
     }, [user]);
 
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+    
+        if (showModal) {
+            if (remainingTime > 0) {
+                timer = setInterval(() => {
+                    setRemainingTime((prevTime) => prevTime - 1);
+                }, 1000);
+            } else {
+                // Quando o tempo chega a 0
+                clearInterval(timer); // Limpa o intervalo
+                Alert.alert(
+                    "Tempo Expirado",
+                    "O tempo para pagamento expirou. Por favor, tente novamente.",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => {
+                                setShowModal(false); // Fecha o modal
+                                setSaldo(''); // Limpa o saldo
+                                setRemainingTime(60); // Reseta o tempo para 1 minuto
+                            }
+                        }
+                    ]
+                );
+            }
+        }
+    
+        return () => clearInterval(timer); // Limpa o timer ao desmontar ou mudar o estado
+    }, [showModal, remainingTime]);
+    
+    
+
     const handlePress = (value: string) => {
-        setSaldo(prev => prev + value); 
+        setSaldo((prev) => prev + value);
     };
 
     const handleDelete = () => {
-        setSaldo(prev => prev.slice(0, -1)); 
+        setSaldo((prev) => prev.slice(0, -1));
+    };
+
+    const generateQrCodeValue = () => {
+        // Gera um código aleatório para o QR
+        const randomCode = Math.random().toString(36).substring(2, 12).toUpperCase();
+        return `PIX-${randomCode}-VALOR:${saldo}`;
     };
 
     const handleSaveSaldo = async () => {
-        try {
-            setLoading(true);
+        const cleanedSaldo = saldo.replace(/^0+/, ''); // Remove zeros à esquerda
+        const numericSaldo = parseFloat(cleanedSaldo); // Converte o valor para número
 
-            const cleanedSaldo = saldo.replace(/^0+/, ''); 
-            const numericSaldo = parseFloat(cleanedSaldo);
-
-            if (isNaN(numericSaldo) || numericSaldo <= 0) {
-                Alert.alert("Erro", "Preencha um saldo válido.");
-                setLoading(false);
-                return;
-            }
-
-            setShowQRCode(true);
-        } catch (error) {
-            Alert.alert("Erro", "Houve um erro ao salvar os dados. Tente novamente mais tarde.");
-        } finally {
-            setLoading(false);
+        if (isNaN(numericSaldo) || numericSaldo <= 0) {
+            Alert.alert("Erro", "Preencha um saldo válido.");
+            return;
         }
+
+        if (numericSaldo > 100) {
+            Alert.alert("Erro", "O valor máximo por recarga é R$100.");
+            return;
+        }
+
+        if (user) {
+            const userRef = doc(collection(db, "dailyLimits"), user.uid); // Referência ao limite diário
+            const today = new Date().toISOString().split('T')[0]; // Obtém a data atual (yyyy-mm-dd)
+
+            try {
+                const dailyLimitDoc = await getDoc(userRef);
+
+                let dailyRecarga = 0;
+                if (dailyLimitDoc.exists()) {
+                    const data = dailyLimitDoc.data();
+                    if (data.date === today) {
+                        dailyRecarga = data.totalRecarga || 0;
+                    }
+                }
+
+                const newDailyTotal = dailyRecarga + numericSaldo;
+
+                if (newDailyTotal > 100) {
+                    Alert.alert("Erro", "O limite diário de R$100 já foi atingido.");
+                    return;
+                }
+
+                // Atualiza o limite diário no Firestore
+                await setDoc(
+                    userRef,
+                    {
+                        date: today,
+                        totalRecarga: newDailyTotal
+                    },
+                    { merge: true }
+                );
+
+                const qrValue = generateQrCodeValue();
+                setQrCodeValue(qrValue); // Define o valor do QR gerado
+                setShowModal(true);
+            } catch (error) {
+                Alert.alert("Erro", "Não foi possível verificar o limite diário. Tente novamente.");
+            }
+        }
+    };
+
+
+    const handleCopyCode = () => {
+        Clipboard.setString(qrCodeValue);
+        Alert.alert("Sucesso", "Código copiado para a área de transferência!");
     };
 
     const handlePaymentCompleted = async () => {
@@ -96,9 +176,9 @@ export default function Recarga() {
 
                 Alert.alert("Sucesso", "Recarregado com sucesso");
 
-                setSaldo(''); 
-                setShowQRCode(false); 
-                setCurrentSaldo(newSaldo); 
+                setSaldo('');
+                setShowModal(false);
+                setCurrentSaldo(newSaldo);
 
             } catch (error) {
                 Alert.alert("Erro", "Houve um erro ao atualizar o saldo e a transação. Tente novamente mais tarde.");
@@ -113,7 +193,6 @@ export default function Recarga() {
             </TouchableOpacity>
 
             <Text style={styles.amount}>{`$${saldo || '0'}`}</Text>
-
 
             <View style={styles.numPad}>
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0'].map((num, index) => (
@@ -134,19 +213,36 @@ export default function Recarga() {
                 <Text style={styles.transferButtonText}>Recarregar</Text>
             </TouchableOpacity>
 
-            {showQRCode && (
+            {/* Modal */}
+            <Modal visible={showModal} animationType="slide" transparent>
                 <View style={styles.qrContainer}>
-                    <QRCode
-                        value={`Valor: ${saldo}`}
-                        size={200}
-                    />
+                    <QRCode value={qrCodeValue} size={180} />
+                    <TouchableOpacity style={styles.qrButton} onPress={handleCopyCode}>
+                        <Text style={styles.qrButtonText}>Copiar Código</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.amount}>VALOR: R$ {saldo}</Text>
+
+                    <Text style={{ color: '#fff', marginBottom: 20 }}>
+                        TEMPO RESTANTE: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+                    </Text>
+
                     <View style={styles.qrButtons}>
                         <TouchableOpacity style={styles.qrButton} onPress={handlePaymentCompleted}>
                             <Text style={styles.qrButtonText}>Pago</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.qrButton}
+                            onPress={() => {
+                                setShowModal(false);
+                                setSaldo('');
+                                setRemainingTime(60 * 60); // Reseta o tempo para 1 hora
+                            }}
+                        >
+                            <Text style={styles.qrButtonText}>Fechar</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            )}
+            </Modal>
         </View>
     );
 }

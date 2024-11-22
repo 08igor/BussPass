@@ -5,13 +5,12 @@ import { useNavigation } from '@react-navigation/native';
 import { propsStack } from '../../../routes/types';
 import { styles } from './styles';
 import { getAuth, User } from 'firebase/auth';
-import { collection, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/utils/firebase';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
+// Inicializa o gerenciador NFC
 NfcManager.start();
-
-const UID_TAG = "a3d2859a"; // Defina o UID da tag NFC que será utilizado
 
 interface CardDetailsType {
   cardName: string;
@@ -20,6 +19,7 @@ interface CardDetailsType {
   status: string;
   validPeriod: string;
   balance: number;
+  uid: string | null;
 }
 
 export default function CardDetails() {
@@ -31,37 +31,58 @@ export default function CardDetails() {
     status: 'Active',
     validPeriod: '',
     balance: 0,
+    uid: null,
   });
 
   const auth = getAuth();
   const user: User | null = auth.currentUser;
+
+  // Carrega os detalhes do cartão na montagem do componente
+  useEffect(() => {
+    fetchCardDetails();
+  }, []);
+
   const handleNfc = async () => {
     try {
-      await NfcManager.start();
-      await NfcManager.requestTechnology(NfcTech.Ndef);
-  
-      const tag = await NfcManager.getTag();
-      
-      // Verifique se a tag foi lida corretamente
-      if (!tag || !tag.id) {
-        Alert.alert("Erro", "Tag não encontrada ou inválida.");
+      // Valida se o usuário está autenticado
+      if (!user || !user.uid) {
+        Alert.alert("Erro", "Usuário não autenticado.");
         return;
       }
-  
+
+      // Inicia o NFC e solicita a tecnologia
+      await NfcManager.start();
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+
+      const tag = await NfcManager.getTag();
+
+      // Valida se a tag foi lida corretamente
+      if (!tag || !tag.id) {
+        Alert.alert("Erro", "Tag NFC não encontrada ou inválida.");
+        return;
+      }
+
       const cardUID = tag.id;
-  
-      // Aqui você pode verificar se o UID corresponde ao UID do usuário
-      if (cardUID === UID_TAG) {
+
+      // Valida se o UID do cartão está disponível
+      if (!cardDetails.uid) {
+        Alert.alert("Erro", "UID do cartão não disponível.");
+        return;
+      }
+
+      // Verifica se o UID da tag corresponde ao do cartão
+      if (cardDetails.uid === cardUID) {
         if (cardDetails.balance >= 4.60) {
           const newBalance = cardDetails.balance - 4.60;
           const cardRef = doc(collection(db, "cardsDados"), user.uid);
-  
+
+          // Atualiza o saldo no Firestore
           await updateDoc(cardRef, { balance: newBalance });
-          setCardDetails(prevDetails => ({
+          setCardDetails((prevDetails) => ({
             ...prevDetails,
             balance: newBalance,
           }));
-  
+
           Alert.alert("Sucesso", "Pagamento realizado com sucesso.");
         } else {
           Alert.alert("Erro", "Saldo insuficiente.");
@@ -69,7 +90,7 @@ export default function CardDetails() {
       } else {
         Alert.alert("Erro", "Tag NFC não reconhecida.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao ler a tag NFC:", error);
       Alert.alert("Erro", error.message || "Falha na leitura do NFC.");
     } finally {
@@ -82,39 +103,34 @@ export default function CardDetails() {
       try {
         const cardRef = doc(collection(db, "cardsDados"), user.uid);
         const docSnap = await getDoc(cardRef);
-  
+
         if (docSnap.exists()) {
           const data = docSnap.data();
-  
-          // Verifique se os dados não são nulos ou indefinidos
+
           if (!data) {
             Alert.alert("Erro", "Nenhum dado encontrado para este cartão.");
             return;
           }
-  
-          // Acesso seguro aos dados
+
+          // Define os detalhes do cartão no estado
           setCardDetails({
-            cardName: data.nameCard || '', // Agora sem o operador de encadeamento opcional
+            cardName: data.nameCard || '',
             bankName: 'BussPass',
             cardNumber: data.numberCard ? `**** ${data.numberCard.slice(-4)}` : '',
             status: data.status || 'Active',
             validPeriod: data.validCard || '',
             balance: data.balance || 0,
+            uid: data.uid || null, // Busca o UID do cartão
           });
         } else {
           Alert.alert("Erro", "Nenhum cartão encontrado.");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro ao buscar detalhes do cartão:", error);
         Alert.alert("Erro", "Não foi possível buscar os detalhes do cartão.");
       }
     }
   };
-  
-  
-  
-  // O resto do seu código do React Native permanece o mesmo
-
 
   return (
     <View style={styles.container}>
@@ -125,7 +141,7 @@ export default function CardDetails() {
       <Text style={styles.title}>Cartão</Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardText}>{"BussPass"}</Text>
+        <Text style={styles.cardText}>{cardDetails.bankName}</Text>
       </View>
 
       <View style={styles.cardDetails}>
@@ -146,7 +162,6 @@ export default function CardDetails() {
       <TouchableOpacity style={styles.actionButton} onPress={handleNfc}>
         <Text style={styles.actionButtonText}>Aproximar Cartão</Text>
       </TouchableOpacity>
-
     </View>
   );
 }

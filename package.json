@@ -9,7 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@expo/vector-icons": "^14.0.2",
+    "@expo/vector-icons": "^14.0.3",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-firebase/app": "^21.0.0",
     "@react-native-firebase/messaging": "^21.0.0",
@@ -17,12 +17,13 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
     "@types/react": "~18.2.79",
-    "expo": "^51.0.31",
+    "expo": "^51.0.39",
     "expo-image-picker": "^15.0.7",
     "firebase": "^10.12.4",
     "phosphor-react-native": "^2.2.1",
     "react": "18.2.0",
     "react-native": "^0.74.5",
+    "react-native-ble-manager": "^11.5.6",
     "react-native-nfc-manager": "^3.16.0",
     "react-native-qrcode-svg": "^6.3.2",
     "react-native-reanimated": "3.10.1",

@@ -21,10 +21,16 @@
       },
       "permissions": [
         "android.permission.NFC"
-      ]
+      ],
+      "package": "com.busspass.meuapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a40f93fe-aa4e-4e62-b883-e5e8bf55cea5"
+      }
     }
   }
 }
