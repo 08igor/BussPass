@@ -1,0 +1,30 @@
+{
+    "project_info": {
+      "project_number": "14962913685",
+      "firebase_url": "https://busspass-21a6c-default-rtdb.firebaseio.com",
+      "project_id": "busspass-21a6c",
+      "storage_bucket": "busspass-21a6c.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:14962913685:android:ad75772f57d584c97a069c",
+          "android_client_info": {
+            "package_name": "com.busspass.meuapp"
+          }
+        },
+        "oauth_client": [],
+        "api_key": [
+          {
+            "current_key": "AIzaSyBu70uWDbGswE8s9gTTFWh79EaN3WwpAoE"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": []
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

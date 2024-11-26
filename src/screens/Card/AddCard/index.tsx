@@ -23,15 +23,29 @@ export default function AddCard() {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
-                const userRef = doc(collection(db, "users"), user.uid); // Substitua por sua coleção de dados do usuário
+                const userRef = doc(collection(db, "users"), user.uid); // Coleção de usuários
+                const cardRef = doc(collection(db, "cardsDados"), user.uid); // Coleção de cartões
+    
                 try {
-                    const docSnap = await getDoc(userRef);
-
-                    if (docSnap.exists()) {
-                        setUserDataExists(true); // Se os dados do usuário existirem, habilita o cadastro de cartão
-                        console.log("Dados do usuário encontrados.");
+                    // Verificar se os dados do usuário existem
+                    const userDocSnap = await getDoc(userRef);
+    
+                    if (userDocSnap.exists()) {
+                        setUserDataExists(true); // Dados do usuário encontrados
+    
+                        // Verificar se há um cartão associado
+                        const cardDocSnap = await getDoc(cardRef);
+                        if (cardDocSnap.exists()) {
+                            const cardData = cardDocSnap.data();
+                            setCardName(cardData.nameCard || '');
+                            setCardNumber(cardData.numberCard || '');
+                            setExpiryYear(cardData.validCard || '');
+                            console.log("Cartão existente carregado:", cardData);
+                        } else {
+                            console.log("Nenhum cartão encontrado para o usuário.");
+                        }
                     } else {
-                        // Se os dados do usuário não existirem, mostrar alerta
+                        // Mostrar alerta se os dados do usuário não existirem
                         console.log("Dados do usuário não encontrados.");
                         Alert.alert(
                             "Cadastro de Cartão",
@@ -55,9 +69,10 @@ export default function AddCard() {
                 console.log("Usuário não autenticado.");
             }
         };
-
+    
         fetchUserData();
-    }, [user, navigate]); // Dependência de user para garantir que a verificação aconteça quando o usuário for autenticado
+    }, [user, navigate]);
+     // Dependência de user para garantir que a verificação aconteça quando o usuário for autenticado
 
     const handleSaveCard = async () => {
         try {

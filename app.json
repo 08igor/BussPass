@@ -19,9 +19,9 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#000000"
       },
-      "permissions": [
-      ],
-      "package": "com.busspass.meuapp"
+      "permissions": ["INTERNET", "CAMERA"],
+      "package": "com.busspass.meuapp",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,7 +31,6 @@
         "projectId": "a40f93fe-aa4e-4e62-b883-e5e8bf55cea5"
       }
     },
-    "plugins": [
-    ]
+    "plugins": []
   }
 }
