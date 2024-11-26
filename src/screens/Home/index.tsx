@@ -99,7 +99,7 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>BussPass</Text>
+        <Text style={styles.title}>Buss Pass</Text>
         <Pressable onPress={() => navigate('Profile')}>
           {photo ? (
             <Image source={{ uri: photo }} style={styles.profileImage} />
@@ -126,7 +126,7 @@ export default function Home() {
         </View>
 
         <Text style={styles.cardName}>Cartão</Text>
-        <Text style={styles.bankName}>BussPass</Text>
+        <Text style={styles.bankName}>Buss Pass</Text>
       </View>
 
       <View style={styles.actionRow}>

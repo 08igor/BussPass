@@ -254,10 +254,10 @@ export default function Recarga() {
             </TouchableOpacity>
 
             {/* Exibe "5 ~100" quando não houver valor digitado, caso contrário exibe o valor do saldo */}
-            <Text style={styles.amount}>{saldo === '' ? '5 ~100' : `R$${saldo}`}</Text>
+            <Text style={styles.amount}>{saldo === '' ? '4.60 ~100' : `R$${saldo}`}</Text>
 
             <View style={styles.numPad}>
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0'].map((num, index) => (
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0'].map((num, index) => (
                     <TouchableOpacity
                         key={index}
                         style={styles.numButton}

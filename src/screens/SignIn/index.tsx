@@ -63,7 +63,7 @@ export default function SignIn() {
         {isLoading ? (
           <ActivityIndicator size="small" color="#FFF" />
         ) : (
-          <Text style={styles.textButton}>Logar</Text>
+          <Text style={styles.textButton}>Entrar</Text>
         )}
       </Pressable>
 

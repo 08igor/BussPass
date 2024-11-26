@@ -22,7 +22,7 @@ export default function CardDetails() {
   const { navigate } = useNavigation<propsStack>();
   const [cardDetails, setCardDetails] = useState<CardDetailsType>({
     cardName: '',
-    bankName: 'BussPass',
+    bankName: 'Buss Pass',
     cardNumber: '',
     status: 'Active',
     validPeriod: '',
@@ -51,7 +51,7 @@ export default function CardDetails() {
         const data = userDoc.data();
         setCardDetails({
           cardName: data.nameCard || '',
-          bankName: 'BussPass',
+          bankName: 'Buss Pass',
           cardNumber: data.numberCard ? `**** ${data.numberCard.slice(-4)}` : '',
           status: data.status || 'Active',
           validPeriod: data.validCard || '',
