@@ -44,6 +44,7 @@ export default function Home() {
     }
   }, [user]);
 
+  // SALDO
   const fetchUserCardData = useCallback(() => {
     if (user) {
       const cardRef = doc(collection(db, "cardsDados"), user.uid);
@@ -58,6 +59,7 @@ export default function Home() {
     }
   }, [user]);
 
+  // TRANSAÇÃO
   const fetchTransactions = useCallback(() => {
     if (user) {
       const transactionsRef = doc(collection(db, "transactions"), user.uid);
@@ -129,8 +131,8 @@ export default function Home() {
 
       <View style={styles.actionRow}>
         <Pressable style={styles.actionButton} onPress={() => navigate('CardDetails')}>
-          <MaterialIcons name="payment" size={24} color="#fff" />
-          <Text style={styles.actionText}>Passe</Text>
+          <MaterialIcons name="qr-code" size={24} color="#fff" />
+          <Text style={styles.actionText}>Leitor QR</Text>
         </Pressable>
 
         <Pressable style={styles.actionButton} onPress={() => navigate('Recarga')}>
@@ -151,6 +153,7 @@ export default function Home() {
             <Text style={styles.viewStatementButton}>Ver Extrato</Text>
           </Pressable>
         </View>
+
         {transactions.length > 0 ? (
           transactions.slice(0, 4).map((item) => (
             <View key={item.id} style={styles.transactionItem}>
@@ -162,7 +165,7 @@ export default function Home() {
                 <Text
                   style={[
                     styles.transactionAmount,
-                    { color: item.type === 'saida' ? 'red' : 'green' },
+                    { color: item.type === 'saida' ? 'red' : 'green' }, // Condição para a cor
                   ]}
                 >
                   {item.amount}

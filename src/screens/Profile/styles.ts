@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
   },
 
   container: {
+    marginTop: 28,
     flex: 1,
     padding: 16,
     backgroundColor: '#11181E',
@@ -34,14 +35,14 @@ export const styles = StyleSheet.create({
   },
 
   formButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#4e2780',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 12,
   },
   logoutButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: '#4E3D8D',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

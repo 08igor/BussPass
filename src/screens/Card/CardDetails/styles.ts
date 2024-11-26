@@ -1,7 +1,8 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
+    marginTop: 28,
     flex: 1,
     backgroundColor: '#11181E',
     alignItems: 'center',
@@ -9,6 +10,11 @@ export const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: 'flex-start',
+    marginBottom: 20,
+  },
+  saldo: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 20,
   },
   title: {
@@ -53,9 +59,11 @@ export const styles = StyleSheet.create({
     color: '#fff',
   },
   deleteButton: {
-    backgroundColor: '#11181E',
-    padding: 15,
-    borderRadius: 10,
+    position: 'absolute', // Faz o ícone de lixeira ficar posicionado absolutamene
+    top: 20, // Distância do topo
+    right: 20, // Distância da direita
+    backgroundColor: 'transparent', // Sem fundo, pois estamos usando apenas o ícone
+    padding: 10, // Espaço em torno do ícone
   },
   deleteButtonText: {
     fontSize: 18,
@@ -73,18 +81,31 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-
-  actionButton: {
+  QrButton: {
     backgroundColor: '#11181E',
     padding: 15,
     borderRadius: 10,
   },
-
-  actionButtonText: {
+  QrText: {
     fontSize: 18,
-    color: '#FF3B30',
+    color: '#fff',
     textAlign: 'center',
-  }
-
-  
+  },
+  cameraContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  focusBox: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -100 }, { translateY: -100 }],
+    width: 200,
+    height: 200,
+    borderWidth: 2,
+    borderColor: '#4E3D8D',
+    borderRadius: 10,
+    backgroundColor: 'transparent',
+  },
 });

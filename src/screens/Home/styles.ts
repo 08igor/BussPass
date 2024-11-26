@@ -1,7 +1,8 @@
-import { StyleSheet } from 'react-native'; 
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
+    marginTop: 28,
     flex: 1,
     backgroundColor: '#11181E',
     padding: 35,
@@ -46,7 +47,7 @@ export const styles = StyleSheet.create({
     color: '#FFF',
   },
   saldoIcon: {
-    marginLeft: 10,  
+    marginLeft: 10,
     color: '#fff',
   },
   cardName: {
@@ -93,7 +94,7 @@ export const styles = StyleSheet.create({
   transactionInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1, 
+    flex: 1,
   },
   transactionName: {
     flex: 1,
@@ -101,21 +102,25 @@ export const styles = StyleSheet.create({
     color: '#fff',
   },
   transactionAmount: {
-    fontSize: 18, 
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#4E3D8D',
     textAlign: 'left',
+    marginLeft: 8,
   },
   transactionDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 4,
+    marginLeft: 10,
   },
   transactionDate: {
     fontSize: 12,
     color: '#999',
+    marginLeft: 8,
   },
+  transactionTime: {},
   noTransactionsText: {
     textAlign: 'center',
     color: '#999',
@@ -152,5 +157,4 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  
 });

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "BussPass2",
+    "name": "BussPass",
     "slug": "BussPass2",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,11 +16,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#000000"
       },
       "permissions": [
-        "android.permission.NFC"
       ],
       "package": "com.busspass.meuapp"
     },
@@ -31,6 +30,8 @@
       "eas": {
         "projectId": "a40f93fe-aa4e-4e62-b883-e5e8bf55cea5"
       }
-    }
+    },
+    "plugins": [
+    ]
   }
 }

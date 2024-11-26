@@ -264,7 +264,7 @@ export default function Profile() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator size="small" color="#FFF" />
+              <ActivityIndicator size="small" color="#4E3D8D" />
             ) : (
               <Text style={styles.textButton}>Cadastrar Dados</Text>
             )}
@@ -273,7 +273,7 @@ export default function Profile() {
             style={styles.logoutButton}
             onPress={userLogout}
           >
-            <Text style={styles.textButton}>Logout</Text>
+            <Text style={styles.textButton}>Sair</Text>
           </Pressable>
         </ScrollView>
       </View>
