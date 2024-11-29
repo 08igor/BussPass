@@ -87,7 +87,6 @@ export default function Recarga() {
         return `PIX-${randomCode}-VALOR:${saldo}`;
     };
 
-
     const handleSaveSaldo = async () => {
         const cleanedSaldo = saldo.replace(/^0+/, ''); 
         const numericSaldo = parseFloat(cleanedSaldo.replace(',', '.'));
@@ -112,13 +111,6 @@ export default function Recarga() {
             const userRefDailyLimit = doc(collection(db, "dailyLimits"), user.uid);
     
             try {
-                // **Verifica se o cartão existe**
-                const cardDoc = await getDoc(userRef);
-                if (!cardDoc.exists()) {
-                    Alert.alert("Erro", "Nenhum cartão cadastrado. Por favor, cadastre um cartão antes de recarregar.");
-                    return; // Bloqueia a recarga
-                }
-    
                 // Verifica o limite diário
                 const today = new Date().toISOString().split('T')[0]; // Data de hoje
                 const dailyLimitDoc = await getDoc(userRefDailyLimit);
@@ -146,10 +138,11 @@ export default function Recarga() {
     
             } catch (error) {
                 console.error("Erro ao consultar Firestore:", error);
-                Alert.alert("Erro", "Houve um erro ao verificar o cartão. Tente novamente.");
+                Alert.alert("Erro", "Houve um erro ao processar sua solicitação. Tente novamente.");
             }
         }
     };
+    
     
     
 
