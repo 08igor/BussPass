@@ -15,7 +15,7 @@ export default function Recarga() {
     const [currentSaldo, setCurrentSaldo] = useState<number>(0);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [qrCodeValue, setQrCodeValue] = useState<string>(''); // Valor do código gerado
-    const [remainingTime, setRemainingTime] = useState<number>(60);
+    const [remainingTime, setRemainingTime] = useState<number>(60*60);
 
     const auth = getAuth();
     const user: User | null = auth.currentUser;
@@ -53,7 +53,7 @@ export default function Recarga() {
                             onPress: () => {
                                 setShowModal(false); // Fecha o modal
                                 setSaldo(''); // Limpa o saldo
-                                setRemainingTime(60); // Reseta o tempo para 1 minuto
+                                setRemainingTime(60*60); // Reseta o tempo para 1 minuto
                             }
                         }
                     ]
