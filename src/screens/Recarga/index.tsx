@@ -91,7 +91,7 @@ export default function Recarga() {
     const handleSaveSaldo = async () => {
         const cleanedSaldo = saldo.replace(/^0+/, ''); 
         const numericSaldo = parseFloat(cleanedSaldo.replace(',', '.'));
-    
+        
         if (isNaN(numericSaldo) || numericSaldo <= 0) {
             Alert.alert("Erro", "Preencha um saldo válido.");
             return;
@@ -109,10 +109,16 @@ export default function Recarga() {
     
         if (user) {
             const userRef = doc(collection(db, "cardsDados"), user.uid);
-            const transactionsRef = doc(collection(db, "transactions"), user.uid);
             const userRefDailyLimit = doc(collection(db, "dailyLimits"), user.uid);
     
             try {
+                // **Verifica se o cartão existe**
+                const cardDoc = await getDoc(userRef);
+                if (!cardDoc.exists()) {
+                    Alert.alert("Erro", "Nenhum cartão cadastrado. Por favor, cadastre um cartão antes de recarregar.");
+                    return; // Bloqueia a recarga
+                }
+    
                 // Verifica o limite diário
                 const today = new Date().toISOString().split('T')[0]; // Data de hoje
                 const dailyLimitDoc = await getDoc(userRefDailyLimit);

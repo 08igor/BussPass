@@ -9,15 +9,16 @@ export const styles = StyleSheet.create({
   container: {
     marginTop: 28,
     flex: 1,
-    padding: 16,
+    padding: 25,
     backgroundColor: '#11181E',
   },
   formTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: -20,
     textAlign: 'center',
     color: 'white',
+    marginTop: 55,
   },
   formInput: {
     height: 48,

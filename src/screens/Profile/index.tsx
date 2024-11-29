@@ -12,9 +12,9 @@ import {
   RefreshControl,
 } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
-import ProfileImage from "../components/ProfileImage";
+import ProfileImage from "../components/ProfileImage"; // Importa o ProfileImage
 import { getAuth, User } from "firebase/auth";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
 import { db } from "../../utils/firebase";
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
@@ -22,8 +22,7 @@ import { useAuth } from "../../context/AuthContext";
 import { styles } from "./styles";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "src/routes/types";
-import { asyncGetUserProfile, asyncSetUserProfile } from "src/utils/storage/UserStorage";
-import { UserProfile } from "src/models/UserProfile";
+import { asyncGetUserProfile } from "src/utils/storage/UserStorage";
 
 export default function Profile() {
   const auth = getAuth();
@@ -33,7 +32,6 @@ export default function Profile() {
   const { navigate } = useNavigation<propsStack>();
 
   const [photo, setPhoto] = useState<string | null>(null);
-  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
@@ -49,14 +47,18 @@ export default function Profile() {
       .replace(/(\d{2})(\d)/, "$1/$2")
       .replace(/(\d{4})\d+?$/, "$1");
   };
-
   const formatNumberInput = (inputValue: string): string => {
+  
     const cleaned = inputValue.replace(/\D/g, "").slice(0, 11);
+  
+    
     const match = cleaned.match(/^(\d{0,2})(\d{0,5})(\d{0,4})$/);
     return match
       ? `(${match[1] || ""})${match[2] || ""}-${match[3] || ""}`
       : inputValue;
   };
+  
+
 
   const insertMaskInCpf = (cpf: string): string => {
     const cleanedCpf = cpf.replace(/\D/g, '');
@@ -69,7 +71,6 @@ export default function Profile() {
 
   const fetchUserData = async () => {
     const userProfile = await asyncGetUserProfile();
-    setUsername(userProfile?.username || "");
     setName(userProfile?.name || "");
     setLastName(userProfile?.lastName || "");
     setDob(userProfile?.dob || "");
@@ -139,7 +140,7 @@ export default function Profile() {
         return;
       }
 
-      if (!username || !name || !lastName || !dob || !number || !cpf) {
+      if (!name || !lastName || !dob || !number || !cpf) {
         Alert.alert("Erro", "Preencha todos os campos");
         setLoading(false);
         return;
@@ -166,7 +167,6 @@ export default function Profile() {
       await setDoc(
         userRef,
         {
-          username,
           name,
           lastName,
           dob,
@@ -197,7 +197,7 @@ export default function Profile() {
             <FontAwesome name="arrow-left" size={24} color="#4E3D8D" />
           </Pressable>
         </View>
-        <Text style={styles.formTitle}>Cadastrar Dados</Text>
+        <Text style={styles.formTitle}>Dados Pessoais</Text>
         <ProfileImage photo={photo} onPress={handleChoosePhoto} />
         <ScrollView
           contentContainerStyle={styles.scrollViewContent}
@@ -208,13 +208,6 @@ export default function Profile() {
             />
           }
         >
-          <TextInput
-            style={styles.formInput}
-            placeholder="Nome de usuário"
-            placeholderTextColor="#fff"
-            onChangeText={setUsername}
-            value={username}
-          />
           <TextInput
             style={styles.formInput}
             placeholder="Digite seu nome"
@@ -229,6 +222,7 @@ export default function Profile() {
             onChangeText={setLastName}
             value={lastName}
           />
+
           <TextInput
             style={styles.formInput}
             placeholder="Digite seu CPF"
@@ -236,12 +230,13 @@ export default function Profile() {
             keyboardType="numeric"
             value={cpf}
             onChangeText={(text) => {
-              const cleanedText = text.replace(/\D/g, ''); 
-              if (cleanedText.length <= 11) { 
+              const cleanedText = text.replace(/\D/g, '');
+              if (cleanedText.length <= 11) {
                 setCpf(insertMaskInCpf(cleanedText));
               }
             }}
           />
+
           <TextInput
             style={styles.formInput}
             placeholder="Digite sua data de nascimento"
@@ -250,14 +245,27 @@ export default function Profile() {
             value={dob}
             keyboardType="numeric"
           />
+
           <TextInput
             style={styles.formInput}
             placeholder="Digite seu número de celular"
             placeholderTextColor="#fff"
-            onChangeText={(text) => setNumber(formatNumberInput(text))}
+            onChangeText={(text) => {
+              const cleanedText = text.replace(/\D/g, '');  
+
+      
+              if (cleanedText.length <= 11) {
+                setNumber(formatNumberInput(cleanedText));
+              }
+            }}
             value={number}
             keyboardType="phone-pad"
+            maxLength={15} 
           />
+
+
+
+
           <Pressable
             style={styles.formButton}
             onPress={handleSaveProfile}

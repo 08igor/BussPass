@@ -12,14 +12,13 @@ export default function AddCard() {
     const { navigate } = useNavigation<propsStack>();
     const [cardName, setCardName] = useState<string>('');
     const [cardNumber, setCardNumber] = useState<string>('');
-    const [expiryYear, setExpiryYear] = useState<string>('');
+    const [expiryMonthYear, setExpiryMonthYear] = useState<string>(''); // Alterado para mês e ano
     const [loading, setLoading] = useState<boolean>(false);
     const [userDataExists, setUserDataExists] = useState<boolean>(false);
 
     const auth = getAuth();
     const user: User | null = auth.currentUser;
 
-    // Carregar dados do usuário para verificar se já existem dados cadastrados
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
@@ -27,25 +26,22 @@ export default function AddCard() {
                 const cardRef = doc(collection(db, "cardsDados"), user.uid); // Coleção de cartões
     
                 try {
-                    // Verificar se os dados do usuário existem
                     const userDocSnap = await getDoc(userRef);
     
                     if (userDocSnap.exists()) {
                         setUserDataExists(true); // Dados do usuário encontrados
     
-                        // Verificar se há um cartão associado
                         const cardDocSnap = await getDoc(cardRef);
                         if (cardDocSnap.exists()) {
                             const cardData = cardDocSnap.data();
                             setCardName(cardData.nameCard || '');
                             setCardNumber(cardData.numberCard || '');
-                            setExpiryYear(cardData.validCard || '');
+                            setExpiryMonthYear(cardData.validCard || ''); // Ajustado para mês e ano
                             console.log("Cartão existente carregado:", cardData);
                         } else {
                             console.log("Nenhum cartão encontrado para o usuário.");
                         }
                     } else {
-                        // Mostrar alerta se os dados do usuário não existirem
                         console.log("Dados do usuário não encontrados.");
                         Alert.alert(
                             "Cadastro de Cartão",
@@ -72,13 +68,12 @@ export default function AddCard() {
     
         fetchUserData();
     }, [user, navigate]);
-     // Dependência de user para garantir que a verificação aconteça quando o usuário for autenticado
 
     const handleSaveCard = async () => {
         try {
             setLoading(true);
 
-            if (!cardName || !cardNumber || !expiryYear) {
+            if (!cardName || !cardNumber || !expiryMonthYear) {
                 Alert.alert("Erro", "Preencha todos os campos.");
                 setLoading(false);
                 return;
@@ -92,7 +87,7 @@ export default function AddCard() {
                     {
                         nameCard: cardName,
                         numberCard: cardNumber,
-                        validCard: expiryYear,
+                        validCard: expiryMonthYear, // Salva o mês e ano
                     },
                     { merge: true }
                 );
@@ -100,7 +95,7 @@ export default function AddCard() {
                 Alert.alert("Sucesso", "Cartão adicionado com sucesso");
                 setCardName('');
                 setCardNumber('');
-                setExpiryYear('');
+                setExpiryMonthYear('');
             }
         } catch (error) {
             Alert.alert(
@@ -112,13 +107,20 @@ export default function AddCard() {
         }
     };
 
-    const handleExpiryYearChange = (text: string) => {
-        const numericText = text.replace(/[^0-9]/g, '').slice(0, 8);
+    const handleExpiryMonthYearChange = (text: string) => {
+        // Remove caracteres não numéricos
+        let numericText = text.replace(/[^0-9]/g, '');
 
-        if (numericText.length === 8) {
-            setExpiryYear(`${numericText.slice(0, 4)}-${numericText.slice(4, 8)}`);
+        // Garante que o mês sempre tenha 2 dígitos
+        if (numericText.length > 2) {
+            numericText = numericText.slice(0, 2) + '/' + numericText.slice(2, 6); // Adiciona a barra e limita o ano a 4 dígitos
+        }
+
+        // Se a barra for inserida antes de 2 dígitos de mês, a barra não aparece
+        if (numericText.length <= 2) {
+            setExpiryMonthYear(numericText); // Exibe apenas o mês
         } else {
-            setExpiryYear(numericText);
+            setExpiryMonthYear(numericText); // Exibe a validade formatada MM/AAAA
         }
     };
 
@@ -132,7 +134,6 @@ export default function AddCard() {
 
             <Text style={styles.title}>Cadastrar Cartão</Text>
 
-            {/* Se o usuário não tem dados cadastrados, o formulário de cadastro de cartão não será exibido */}
             {userDataExists ? (
                 <>
                     <TextInput
@@ -154,12 +155,12 @@ export default function AddCard() {
 
                     <TextInput
                         style={styles.formInput}
-                        placeholder="Ano de Validade (Ex: 2024-2030)"
+                        placeholder="Validade (MM/AAAA)"
                         placeholderTextColor={"white"}
-                        value={expiryYear}
-                        onChangeText={handleExpiryYearChange}
+                        value={expiryMonthYear}
+                        onChangeText={handleExpiryMonthYearChange}
                         keyboardType="numeric"
-                        maxLength={9}
+                        maxLength={7} // Formato MM/AAAA
                     />
 
                     <Pressable style={styles.formButton} onPress={handleSaveCard} disabled={loading}>
